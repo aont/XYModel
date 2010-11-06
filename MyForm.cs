@@ -75,14 +75,25 @@ namespace XYModel
             double Theta = this.Theta[x, y];
             double ThetaAvg = (Theta + NewTheta) / 2.0;
             double H = 0;
-            if (x > 0)
+            if (x != 0)
                 H += Sin(ThetaAvg - this.Theta[x - 1, y]);
-            if (x < X - 1)
+            else
+                H += Sin(ThetaAvg - this.Theta[X - 1, y]);
+
+            if (x != X - 1)
                 H += Sin(ThetaAvg - this.Theta[x + 1, y]);
-            if (y > 0)
+            else
+                H += Sin(ThetaAvg - this.Theta[0, y]);
+
+            if (y != 0)
                 H += Sin(ThetaAvg - this.Theta[x, y - 1]);
+            else
+                H += Sin(ThetaAvg - this.Theta[x, Y - 1]);
+
             if (y < Y - 1)
                 H += Sin(ThetaAvg - this.Theta[x, y + 1]);
+            else
+                H += Sin(ThetaAvg - this.Theta[x, 0]);
 
             H *= -2 * g_beta * Sin((NewTheta - Theta) / 2.0);
             H -= 2 * h * Sin(ThetaAvg - Theta_0) * Sin((NewTheta - Theta) / 2.0);
@@ -263,27 +274,29 @@ namespace XYModel
             }
         }
 
+        void LoadBitmap(Bitmap bitmap)
+        {
+            this.pictureBox1.Image = this.canvas = bitmap;
+
+            this.X = this.canvas.Width;
+            this.Y = this.canvas.Height;
+            this.Theta = new double[X, Y];
+            for (int y = 0; y < Y; y++)
+                for (int x = 0; x < X; x++)
+                {
+                    var degree = canvas.GetPixel(x, y).GetHue() * PI / 180;
+                    this.Theta[x, y] = degree;
+                }
+            this.managerForm.Width_textBox.Text = X.ToString();
+            this.managerForm.Height_textBox.Text = Y.ToString();
+        }
+
         void OpenToolStripButton_Click(object sender, EventArgs e)
         {
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 using (var stream = ofd.OpenFile())
-                    this.canvas = (
-                        this.pictureBox1.Image = Image.FromStream(stream)
-                        ) as Bitmap;
-
-                this.X = this.canvas.Width;
-                this.Y = this.canvas.Height;
-                this.Theta = new double[X, Y];
-                for (int y = 0; y < Y; y++)
-                    for (int x = 0; x < X; x++)
-                    {
-                        var degree = canvas.GetPixel(x, y).GetHue() * PI / 180;
-                        this.Theta[x, y] = degree;
-                    }
-                this.managerForm.Width_textBox.Text = X.ToString();
-                this.managerForm.Height_textBox.Text = Y.ToString();
-
+                    LoadBitmap(Image.FromStream(stream) as Bitmap);
             }
         }
 
@@ -313,8 +326,16 @@ namespace XYModel
             }
         }
 
-
         void ResizeTheta(int X, int Y)
+        {
+            Bitmap resized = new Bitmap(X, Y);
+            var g = Graphics.FromImage(resized);
+            g.DrawImage(this.canvas, new Rectangle(0, 0, X, Y));
+            g.Dispose();
+            LoadBitmap(resized);
+        }
+        /*
+        void _ResizeTheta(int X, int Y)
         {
             var Theta_ = this.Theta;
             var X_ = this.X;
@@ -344,6 +365,7 @@ namespace XYModel
             this.managerForm.Width_textBox.Text = X.ToString();
             this.managerForm.Height_textBox.Text = Y.ToString();
         }
+        */
 
         private void average_calc_timer_Tick(object sender, EventArgs e)
         {
