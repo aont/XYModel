@@ -21,5 +21,6 @@ namespace XYModel
             this.Visible = false;
             base.OnClosing(e);
         }
+
     }
 }

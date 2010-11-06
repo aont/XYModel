@@ -303,6 +303,7 @@
             this.OpenToolStripButton.Name = "OpenToolStripButton";
             this.OpenToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.OpenToolStripButton.Text = "開く(&O)";
+            //this.OpenToolStripButton.Click += new System.EventHandler(this.OpenToolStripButton_Click);
             // 
             // SaveToolStripButton
             // 
